@@ -1962,6 +1962,82 @@ with tab1:
                                     ensure_results_tab_works(results_list)
                                     if 'individual_results' in st.session_state and len(st.session_state.individual_results) > 0:
                                         st.success(f"Successfully analyzed {len(st.session_state.individual_results)} emails from the Excel file! View results in the 'Detailed Evaluation' tab.")
+                                        
+                                        # --- START: Display Results for Excel uploads ---
+                                        st.markdown("## Analysis Results")
+                                        individual_results = st.session_state.individual_results
+                                        
+                                        # Create a thread overview at the top
+                                        thread_context = {
+                                            "thread_id": "excel_upload_thread_01",
+                                            "thread_subject": "Excel Upload",
+                                            "email_count": len(individual_results),
+                                            "date_range": {
+                                                "start": individual_results[0].get("email", {}).get("receivedDateTime", "Unknown"),
+                                                "end": individual_results[-1].get("email", {}).get("receivedDateTime", "Unknown")
+                                            },
+                                            "participants": {"excel@example.com"}
+                                        }
+                                        
+                                        # Show thread overview
+                                        st.markdown("### Excel Upload Overview")
+                                        st.markdown(f"**Number of Emails Processed:** {thread_context['email_count']}")
+                                        st.markdown(f"**Processing Date:** {thread_context['date_range']['start']}")
+                                        st.markdown("---")
+                                        
+                                        # Create tabs for each email
+                                        email_tabs = st.tabs([
+                                            f"Email {idx+1} from Excel" 
+                                            for idx, result in enumerate(individual_results)
+                                        ])
+                                        
+                                        # Display each email in its own tab
+                                        for idx, (email_tab, result) in enumerate(zip(email_tabs, individual_results)):
+                                            with email_tab:
+                                                try:
+                                                    # Email metadata
+                                                    st.markdown(f"## Email {idx+1} Analysis")
+                                                    st.markdown(f"**From Excel Row:** {idx+1}")
+                                                    
+                                                    # Display original email content
+                                                    st.markdown("#### 📧 Original Email Content")
+                                                    if 'email' in result and 'body' in result['email'] and 'content' in result['email']['body']:
+                                                        content = result['email']['body']['content']
+                                                        st.code(clean_email_content(content), language=None)
+                                                    else:
+                                                        st.info("No email content available")
+                                                    
+                                                    # Display the three main sections: Input Data, AI Output, and Ground Truth
+                                                    col1, col2 = st.columns(2)
+                                                    
+                                                    with col1:
+                                                        st.markdown("### Input Data")
+                                                        if 'input_data' in result:
+                                                            st.json(result['input_data'])
+                                                        else:
+                                                            st.info("No input data available")
+                                                    
+                                                    with col2:
+                                                        st.markdown("### Ground Truth")
+                                                        if 'groundtruth' in result:
+                                                            st.json(result['groundtruth'])
+                                                        else:
+                                                            st.info("No ground truth data available")
+                                                    
+                                                    # Display AI Output
+                                                    st.markdown("### AI Output")
+                                                    if 'ai_output' in result:
+                                                        st.json(result['ai_output'])
+                                                    else:
+                                                        st.info("No AI output available")
+                                                    
+                                                except Exception as e:
+                                                    st.error(f"Error displaying email {idx + 1}: {str(e)}")
+                                                    print(f"Error details for email {idx + 1}:")
+                                                    import traceback
+                                                    traceback.print_exc()
+                                        # --- END: Display Results for Excel uploads ---
+                                        
                                         if st.button("Go to Detailed Evaluation Tab", key="goto_results_excel"):
                                             st.session_state.active_tab = "Detailed Evaluation"
                                             st.experimental_rerun()
