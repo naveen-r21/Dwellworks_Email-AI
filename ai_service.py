@@ -66,11 +66,12 @@ class AIService:
             "file_name": [],
             "email": sender_email,
             "mail_time": email.get("receivedDateTime", ""),
-            "body_type": email.get("body", {}).get("contentType", ""),
+            "body_type": "html",
             "mail_body": cleaned_body,
             "thread_id": email.get("conversationId", ""),
             "mail_summary": previous_summary
         }
+        # "body_type": email.get("body", {}).get("contentType", ""),
         
         # Log the formatted data
         self.logger.info(f"Sending request to {self.api_endpoint}")
@@ -124,11 +125,12 @@ class AIService:
             "file_name": [],
             "email": email_content.get("sender", {}).get("emailAddress", {}).get("address", ""),
             "mail_time": email_content.get("receivedDateTime", ""),
-            "body_type": email_content.get("body", {}).get("contentType", ""),
+            "body_type": "html",
             "mail_body": email_content.get("body", {}).get("content", "").replace("\\n", "\n"),
             "thread_id": email_content.get("conversationId", ""),
             "mail_summary": previous_summary
         }
+        # "body_type": email_content.get("body", {}).get("contentType", ""),
 
     def identify_features(self, email_data: Dict[str, Any], features: List[Dict[str, Any]]) -> List[str]:
         """
