@@ -529,7 +529,7 @@ def format_input_data(email):
             "file_name": [],
             "email": sender_email,
             "mail_time": received_time,
-            "body_type": content_type if content_type else "plain",
+            "body_type": "plain",
             "mail_body": cleaned_content,
             "thread_id": thread_id,
             "mail_summary": ""
